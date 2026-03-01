@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
@@ -22,57 +23,169 @@ if not parentSuccess then
 end
 
 -- ============================================================================
---  STARTUP LOADING SCREEN (5 seconds)
+--  STARTUP LOADING SCREEN (inspired by the photo, 5 seconds)
 -- ============================================================================
 local loadingFrame = Instance.new("Frame")
 loadingFrame.Name = "LoadingScreen"
 loadingFrame.Size = UDim2.new(1, 0, 1, 0)
 loadingFrame.Position = UDim2.new(0, 0, 0, 0)
-loadingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 10)  -- Very dark blue-black
 loadingFrame.BackgroundTransparency = 0
 loadingFrame.BorderSizePixel = 0
 loadingFrame.ZIndex = 10
 loadingFrame.Parent = screenGui
 
--- Gradient overlay for style
+-- Gradient overlay for depth
 local loadingGradient = Instance.new("UIGradient")
 loadingGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(5, 5, 15)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 5)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(8, 8, 20)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 5))
 })
 loadingGradient.Rotation = 45
 loadingGradient.Parent = loadingFrame
 
--- Header text (from your screenshot)
+-- Header (from screenshot)
 local loadingHeader = Instance.new("TextLabel")
-loadingHeader.Size = UDim2.new(1, 0, 0, 50)
-loadingHeader.Position = UDim2.new(0, 0, 0.3, -25)
+loadingHeader.Size = UDim2.new(1, -40, 0, 40)
+loadingHeader.Position = UDim2.new(0, 20, 0, 20)
 loadingHeader.BackgroundTransparency = 1
 loadingHeader.Text = "NEW STEAL A BRAINROT | TRADE FREEZE SCRIPT | FORCE READY | FORCE ACCEPT TRADE..."
-loadingHeader.TextColor3 = Color3.fromRGB(0, 150, 255)
+loadingHeader.TextColor3 = Color3.fromRGB(0, 180, 255)
 loadingHeader.TextScaled = true
 loadingHeader.Font = Enum.Font.GothamBold
 loadingHeader.TextWrapped = true
 loadingHeader.ZIndex = 11
 loadingHeader.Parent = loadingFrame
 
--- Subtext (flavor)
-local loadingSub = Instance.new("TextLabel")
-loadingSub.Size = UDim2.new(1, 0, 0, 30)
-loadingSub.Position = UDim2.new(0, 0, 0.45, -15)
-loadingSub.BackgroundTransparency = 1
-loadingSub.Text = "Brr, Brr, Patapim • $100/s • $15K"
-loadingSub.TextColor3 = Color3.fromRGB(150, 200, 255)
-loadingSub.TextScaled = true
-loadingSub.Font = Enum.Font.Gotham
-loadingSub.ZIndex = 11
-loadingSub.Parent = loadingFrame
+-- Create item panels (mimicking the screenshot)
+local function createItemPanel(name, rarity, pricePerSec, totalValue, yPos)
+	local panel = Instance.new("Frame")
+	panel.Size = UDim2.new(1, -40, 0, 50)
+	panel.Position = UDim2.new(0, 20, 0, yPos)
+	panel.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+	panel.BackgroundTransparency = 0.3
+	panel.BorderSizePixel = 0
+	panel.ZIndex = 11
+	panel.Parent = loadingFrame
+
+	local panelCorner = Instance.new("UICorner")
+	panelCorner.CornerRadius = UDim.new(0, 8)
+	panelCorner.Parent = panel
+
+	local panelStroke = Instance.new("UIStroke")
+	panelStroke.Color = Color3.fromRGB(0, 150, 255)
+	panelStroke.Transparency = 0.5
+	panelStroke.Thickness = 1
+	panelStroke.Parent = panel
+
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.new(0.4, -10, 1, 0)
+	nameLabel.Position = UDim2.new(0, 10, 0, 0)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.Text = name
+	nameLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+	nameLabel.TextScaled = true
+	nameLabel.Font = Enum.Font.GothamBold
+	nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	nameLabel.ZIndex = 12
+	nameLabel.Parent = panel
+
+	if rarity then
+		local rarityLabel = Instance.new("TextLabel")
+		rarityLabel.Size = UDim2.new(0.2, -5, 1, 0)
+		rarityLabel.Position = UDim2.new(0.4, 0, 0, 0)
+		rarityLabel.BackgroundTransparency = 1
+		rarityLabel.Text = rarity
+		rarityLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+		rarityLabel.TextScaled = true
+		rarityLabel.Font = Enum.Font.Gotham
+		rarityLabel.TextXAlignment = Enum.TextXAlignment.Left
+		rarityLabel.ZIndex = 12
+		rarityLabel.Parent = panel
+	end
+
+	local priceLabel = Instance.new("TextLabel")
+	priceLabel.Size = UDim2.new(0.2, -5, 1, 0)
+	priceLabel.Position = UDim2.new(0.6, 0, 0, 0)
+	priceLabel.BackgroundTransparency = 1
+	priceLabel.Text = pricePerSec
+	priceLabel.TextColor3 = Color3.fromRGB(0, 255, 200)
+	priceLabel.TextScaled = true
+	priceLabel.Font = Enum.Font.Gotham
+	priceLabel.TextXAlignment = Enum.TextXAlignment.Left
+	priceLabel.ZIndex = 12
+	priceLabel.Parent = panel
+
+	local totalLabel = Instance.new("TextLabel")
+	totalLabel.Size = UDim2.new(0.2, -10, 1, 0)
+	totalLabel.Position = UDim2.new(0.8, 0, 0, 0)
+	totalLabel.BackgroundTransparency = 1
+	totalLabel.Text = totalValue
+	totalLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+	totalLabel.TextScaled = true
+	totalLabel.Font = Enum.Font.GothamBold
+	totalLabel.TextXAlignment = Enum.TextXAlignment.Right
+	totalLabel.ZIndex = 12
+	totalLabel.Parent = panel
+end
+
+createItemPanel("Brr, Brr, Patapim", nil, "$100/s", "$15K", 70)
+createItemPanel("Trippi Troppi", "Rare", "$15/s", "$2K", 130)
+createItemPanel("Gangster Footera", "Rare", "$30/s", "$4K", 190)
+
+-- Stats row (Offline Cash, Collect, etc.)
+local statsFrame = Instance.new("Frame")
+statsFrame.Size = UDim2.new(1, -40, 0, 40)
+statsFrame.Position = UDim2.new(0, 20, 0, 260)
+statsFrame.BackgroundTransparency = 1
+statsFrame.ZIndex = 11
+statsFrame.Parent = loadingFrame
+
+local statLayout = Instance.new("UIListLayout")
+statLayout.FillDirection = Enum.FillDirection.Horizontal
+statLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+statLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+statLayout.Padding = UDim.new(0, 30)
+statLayout.Parent = statsFrame
+
+local function createStat(text, value)
+	local container = Instance.new("Frame")
+	container.Size = UDim2.new(0, 120, 1, 0)
+	container.BackgroundTransparency = 1
+	container.Parent = statsFrame
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 0.5, 0)
+	textLabel.Position = UDim2.new(0, 0, 0, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.Text = text
+	textLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+	textLabel.TextScaled = true
+	textLabel.Font = Enum.Font.Gotham
+	textLabel.ZIndex = 12
+	textLabel.Parent = container
+
+	local valueLabel = Instance.new("TextLabel")
+	valueLabel.Size = UDim2.new(1, 0, 0.5, 0)
+	valueLabel.Position = UDim2.new(0, 0, 0.5, 0)
+	valueLabel.BackgroundTransparency = 1
+	valueLabel.Text = value
+	valueLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+	valueLabel.TextScaled = true
+	valueLabel.Font = Enum.Font.GothamBold
+	valueLabel.ZIndex = 12
+	valueLabel.Parent = container
+end
+
+createStat("Offline Cash:", "$920")
+createStat("Collect:", "$1.8K")
+createStat("Loading Rin Hub", "")
 
 -- Progress Bar Background
 local loadingBarBg = Instance.new("Frame")
 loadingBarBg.Size = UDim2.new(0.6, 0, 0, 8)
-loadingBarBg.Position = UDim2.new(0.5, -150, 0.6, -4)
+loadingBarBg.Position = UDim2.new(0.5, -150, 0.9, -4)
 loadingBarBg.AnchorPoint = Vector2.new(0.5, 0.5)
 loadingBarBg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 loadingBarBg.BorderSizePixel = 0
@@ -95,7 +208,6 @@ local fillCorner = Instance.new("UICorner")
 fillCorner.CornerRadius = UDim.new(0, 4)
 fillCorner.Parent = loadingBarFill
 
--- Glow on fill
 local fillGradient = Instance.new("UIGradient")
 fillGradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)),
@@ -105,30 +217,45 @@ fillGradient.Color = ColorSequence.new({
 fillGradient.Rotation = 90
 fillGradient.Parent = loadingBarFill
 
--- Loading text
-local loadingText = Instance.new("TextLabel")
-loadingText.Size = UDim2.new(0, 200, 0, 30)
-loadingText.Position = UDim2.new(0.5, -100, 0.65, -15)
-loadingText.BackgroundTransparency = 1
-loadingText.Text = "LOADING RIN HUB"
-loadingText.TextColor3 = Color3.fromRGB(100, 200, 255)
-loadingText.TextScaled = true
-loadingText.Font = Enum.Font.GothamBold
-loadingText.ZIndex = 11
-loadingText.Parent = loadingFrame
-
 -- Animate loading bar
 local loadTween = TweenService:Create(loadingBarFill, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
 loadTween:Play()
 
--- After 5 seconds, fade out loading screen
+-- After 5 seconds, fade out loading screen and show welcome
 task.wait(5)
 local fadeOut = TweenService:Create(loadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
 fadeOut:Play()
 fadeOut.Completed:Connect(function()
 	loadingFrame:Destroy()
+
+	-- Welcome UI
+	local welcomeLabel = Instance.new("TextLabel")
+	welcomeLabel.Size = UDim2.new(0, 300, 0, 50)
+	welcomeLabel.Position = UDim2.new(0.5, -150, 0.9, -25)
+	welcomeLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	welcomeLabel.BackgroundTransparency = 0.3
+	welcomeLabel.Text = "Welcome to Shin Scripts, " .. LocalPlayer.Name .. "!"
+	welcomeLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+	welcomeLabel.TextScaled = true
+	welcomeLabel.Font = Enum.Font.GothamBold
+	welcomeLabel.ZIndex = 20
+	welcomeLabel.Parent = screenGui
+
+	local welcomeCorner = Instance.new("UICorner")
+	welcomeCorner.CornerRadius = UDim.new(0, 12)
+	welcomeCorner.Parent = welcomeLabel
+
+	local welcomeStroke = Instance.new("UIStroke")
+	welcomeStroke.Color = Color3.fromRGB(0, 150, 255)
+	welcomeStroke.Thickness = 1.5
+	welcomeStroke.Parent = welcomeLabel
+
+	-- Fade out after 2 seconds
+	task.wait(2)
+	local welcomeFade = TweenService:Create(welcomeLabel, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1})
+	welcomeFade:Play()
+	welcomeFade.Completed:Connect(function() welcomeLabel:Destroy() end)
 end)
--- Also fade out children? We'll just destroy after fade. For now, let them fade with parent transparency.
 
 -- ============================================================================
 --  MAIN UI (unchanged layout, only colors adjusted per your request)
@@ -413,7 +540,7 @@ removeStroke.Thickness = 1
 removeStroke.Parent = removeBtn
 
 -- ============================================================================
---  TOGGLE BUTTON FUNCTION (with loading effect, no auto-off)
+--  TOGGLE BUTTON FUNCTION (with loading popup, no auto-off)
 -- ============================================================================
 local function createToggleButton(name, icon, order, color)
 	color = color or Color3.fromRGB(0, 150, 255)  -- Default blue
@@ -522,22 +649,75 @@ local function createToggleButton(name, icon, order, color)
 	knobCorner.CornerRadius = UDim.new(1, 0)
 	knobCorner.Parent = toggleKnob
 
-	-- Loading Bar (replaces the old timer bar, now used for activation effect)
-	local loadingBar = Instance.new("Frame")
-	loadingBar.Name = "LoadingBar"
-	loadingBar.Size = UDim2.new(0, 0, 0, 4)
-	loadingBar.Position = UDim2.new(0, 0, 1, -4)
-	loadingBar.AnchorPoint = Vector2.new(0, 1)
-	loadingBar.BackgroundColor3 = color  -- Blue
-	loadingBar.BackgroundTransparency = 0.3
-	loadingBar.BorderSizePixel = 0
-	loadingBar.ZIndex = 5
-	loadingBar.Visible = false
-	loadingBar.Parent = container
+	-- Loading Popup (similar to startup but smaller and simpler)
+	local loadingPopup = Instance.new("Frame")
+	loadingPopup.Name = "LoadingPopup"
+	loadingPopup.Size = UDim2.new(0, 280, 0, 150)
+	loadingPopup.Position = UDim2.new(0.5, -140, 0.5, -75)
+	loadingPopup.AnchorPoint = Vector2.new(0.5, 0.5)
+	loadingPopup.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
+	loadingPopup.BackgroundTransparency = 0.1
+	loadingPopup.BorderSizePixel = 0
+	loadingPopup.ZIndex = 20
+	loadingPopup.Visible = false
+	loadingPopup.Parent = screenGui  -- Parent to screenGui to appear above everything
 
-	local barCorner = Instance.new("UICorner")
-	barCorner.CornerRadius = UDim.new(0, 2)
-	barCorner.Parent = loadingBar
+	local popupCorner = Instance.new("UICorner")
+	popupCorner.CornerRadius = UDim.new(0, 12)
+	popupCorner.Parent = loadingPopup
+
+	local popupStroke = Instance.new("UIStroke")
+	popupStroke.Color = color
+	popupStroke.Thickness = 2
+	popupStroke.Parent = loadingPopup
+
+	local popupHeader = Instance.new("TextLabel")
+	popupHeader.Size = UDim2.new(1, -20, 0, 30)
+	popupHeader.Position = UDim2.new(0, 10, 0, 10)
+	popupHeader.BackgroundTransparency = 1
+	popupHeader.Text = "ACTIVATING " .. name:upper() .. "..."
+	popupHeader.TextColor3 = color
+	popupHeader.TextScaled = true
+	popupHeader.Font = Enum.Font.GothamBold
+	popupHeader.ZIndex = 21
+	popupHeader.Parent = loadingPopup
+
+	-- Progress bar inside popup
+	local popupBarBg = Instance.new("Frame")
+	popupBarBg.Size = UDim2.new(0.8, 0, 0, 8)
+	popupBarBg.Position = UDim2.new(0.5, -100, 0.5, -4)
+	popupBarBg.AnchorPoint = Vector2.new(0.5, 0.5)
+	popupBarBg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+	popupBarBg.BorderSizePixel = 0
+	popupBarBg.ZIndex = 21
+	popupBarBg.Parent = loadingPopup
+
+	local popupBarBgCorner = Instance.new("UICorner")
+	popupBarBgCorner.CornerRadius = UDim.new(0, 4)
+	popupBarBgCorner.Parent = popupBarBg
+
+	local popupBarFill = Instance.new("Frame")
+	popupBarFill.Size = UDim2.new(0, 0, 1, 0)
+	popupBarFill.BackgroundColor3 = color
+	popupBarFill.BorderSizePixel = 0
+	popupBarFill.ZIndex = 22
+	popupBarFill.Parent = popupBarBg
+
+	local popupFillCorner = Instance.new("UICorner")
+	popupFillCorner.CornerRadius = UDim.new(0, 4)
+	popupFillCorner.Parent = popupBarFill
+
+	-- Flavor text
+	local popupFlavor = Instance.new("TextLabel")
+	popupFlavor.Size = UDim2.new(1, -20, 0, 20)
+	popupFlavor.Position = UDim2.new(0, 10, 0, 100)
+	popupFlavor.BackgroundTransparency = 1
+	popupFlavor.Text = "Brr Brr... Loading brainrot"
+	popupFlavor.TextColor3 = Color3.fromRGB(150, 200, 255)
+	popupFlavor.TextScaled = true
+	popupFlavor.Font = Enum.Font.Gotham
+	popupFlavor.ZIndex = 21
+	popupFlavor.Parent = loadingPopup
 
 	local clickBtn = Instance.new("TextButton")
 	clickBtn.Size = UDim2.new(1, 0, 1, 0)
@@ -556,8 +736,8 @@ local function createToggleButton(name, icon, order, color)
 			currentTween:Cancel()
 			currentTween = nil
 		end
-		loadingBar.Visible = false
-		loadingBar.Size = UDim2.new(0, 0, 0, 4)
+		loadingPopup.Visible = false
+		popupBarFill.Size = UDim2.new(0, 0, 1, 0)
 	end
 
 	local function setVisualState(state, loading)
@@ -591,7 +771,7 @@ local function createToggleButton(name, icon, order, color)
 			TweenService:Create(container, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2}):Play()
 		end)
 
-		-- Ripple effect on activation
+		-- Ripple effect on activation (when fully on, not during loading)
 		if state and not loading then
 			local ripple = Instance.new("Frame")
 			ripple.Size = UDim2.new(0, 0, 0, 0)
@@ -615,42 +795,43 @@ local function createToggleButton(name, icon, order, color)
 	end
 
 	local function turnOn()
+		if isOn then return end
 		isOn = true
 		isLoading = true
 		setVisualState(true, true)
 
-		-- Start loading bar tween (5 seconds)
-		loadingBar.Visible = true
-		loadingBar.Size = UDim2.new(0, 0, 0, 4)
-		currentTween = TweenService:Create(loadingBar, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 0, 4)})
+		-- Show loading popup
+		loadingPopup.Visible = true
+		popupBarFill.Size = UDim2.new(0, 0, 1, 0)
+		currentTween = TweenService:Create(popupBarFill, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
 		currentTween:Play()
 		currentTween.Completed:Connect(function()
-			-- Loading finished, now fully on (no auto-off)
+			-- Loading finished, now fully on
 			if isLoading then
 				isLoading = false
 				setVisualState(true, false)
+				loadingPopup.Visible = false
 				stopLoading()
 			end
 		end)
 	end
 
 	local function turnOff()
+		if not isOn then return end
 		if isLoading then
 			stopLoading()
 		end
 		isOn = false
 		isLoading = false
 		setVisualState(false, false)
-		stopLoading()
+		loadingPopup.Visible = false
 	end
 
 	-- Click handler
 	clickBtn.MouseButton1Click:Connect(function()
 		if isOn then
-			-- If currently on (or loading), turn off
 			turnOff()
 		else
-			-- If off, turn on
 			turnOn()
 		end
 	end)
