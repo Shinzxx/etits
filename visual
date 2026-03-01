@@ -12,6 +12,7 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ShinScriptsFreezeTrade"
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.IgnoreGuiInset = true
 
 local parentSuccess = pcall(function()
 	screenGui.Parent = PlayerGui
@@ -19,6 +20,119 @@ end)
 if not parentSuccess then
 	screenGui.Parent = game:GetService("CoreGui")
 end
+
+-- ============================================================================
+--  STARTUP LOADING SCREEN (5 seconds)
+-- ============================================================================
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Name = "LoadingScreen"
+loadingFrame.Size = UDim2.new(1, 0, 1, 0)
+loadingFrame.Position = UDim2.new(0, 0, 0, 0)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+loadingFrame.BackgroundTransparency = 0
+loadingFrame.BorderSizePixel = 0
+loadingFrame.ZIndex = 10
+loadingFrame.Parent = screenGui
+
+-- Gradient overlay for style
+local loadingGradient = Instance.new("UIGradient")
+loadingGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(5, 5, 15)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+})
+loadingGradient.Rotation = 45
+loadingGradient.Parent = loadingFrame
+
+-- Header text (from your screenshot)
+local loadingHeader = Instance.new("TextLabel")
+loadingHeader.Size = UDim2.new(1, 0, 0, 50)
+loadingHeader.Position = UDim2.new(0, 0, 0.3, -25)
+loadingHeader.BackgroundTransparency = 1
+loadingHeader.Text = "NEW STEAL A BRAINROT | TRADE FREEZE SCRIPT | FORCE READY | FORCE ACCEPT TRADE..."
+loadingHeader.TextColor3 = Color3.fromRGB(0, 150, 255)
+loadingHeader.TextScaled = true
+loadingHeader.Font = Enum.Font.GothamBold
+loadingHeader.TextWrapped = true
+loadingHeader.ZIndex = 11
+loadingHeader.Parent = loadingFrame
+
+-- Subtext (flavor)
+local loadingSub = Instance.new("TextLabel")
+loadingSub.Size = UDim2.new(1, 0, 0, 30)
+loadingSub.Position = UDim2.new(0, 0, 0.45, -15)
+loadingSub.BackgroundTransparency = 1
+loadingSub.Text = "Brr, Brr, Patapim • $100/s • $15K"
+loadingSub.TextColor3 = Color3.fromRGB(150, 200, 255)
+loadingSub.TextScaled = true
+loadingSub.Font = Enum.Font.Gotham
+loadingSub.ZIndex = 11
+loadingSub.Parent = loadingFrame
+
+-- Progress Bar Background
+local loadingBarBg = Instance.new("Frame")
+loadingBarBg.Size = UDim2.new(0.6, 0, 0, 8)
+loadingBarBg.Position = UDim2.new(0.5, -150, 0.6, -4)
+loadingBarBg.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingBarBg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+loadingBarBg.BorderSizePixel = 0
+loadingBarBg.ZIndex = 11
+loadingBarBg.Parent = loadingFrame
+
+local barBgCorner = Instance.new("UICorner")
+barBgCorner.CornerRadius = UDim.new(0, 4)
+barBgCorner.Parent = loadingBarBg
+
+-- Progress Bar Fill
+local loadingBarFill = Instance.new("Frame")
+loadingBarFill.Size = UDim2.new(0, 0, 1, 0)
+loadingBarFill.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+loadingBarFill.BorderSizePixel = 0
+loadingBarFill.ZIndex = 12
+loadingBarFill.Parent = loadingBarBg
+
+local fillCorner = Instance.new("UICorner")
+fillCorner.CornerRadius = UDim.new(0, 4)
+fillCorner.Parent = loadingBarFill
+
+-- Glow on fill
+local fillGradient = Instance.new("UIGradient")
+fillGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 200, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 255))
+})
+fillGradient.Rotation = 90
+fillGradient.Parent = loadingBarFill
+
+-- Loading text
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(0, 200, 0, 30)
+loadingText.Position = UDim2.new(0.5, -100, 0.65, -15)
+loadingText.BackgroundTransparency = 1
+loadingText.Text = "LOADING RIN HUB"
+loadingText.TextColor3 = Color3.fromRGB(100, 200, 255)
+loadingText.TextScaled = true
+loadingText.Font = Enum.Font.GothamBold
+loadingText.ZIndex = 11
+loadingText.Parent = loadingFrame
+
+-- Animate loading bar
+local loadTween = TweenService:Create(loadingBarFill, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
+loadTween:Play()
+
+-- After 5 seconds, fade out loading screen
+task.wait(5)
+local fadeOut = TweenService:Create(loadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
+fadeOut:Play()
+fadeOut.Completed:Connect(function()
+	loadingFrame:Destroy()
+end)
+-- Also fade out children? We'll just destroy after fade. For now, let them fade with parent transparency.
+
+-- ============================================================================
+--  MAIN UI (unchanged layout, only colors adjusted per your request)
+-- ============================================================================
 
 -- Sizing (adjusted for more content)
 local baseSize = isMobile and UDim2.new(0, 320, 0, 420) or UDim2.new(0, 380, 0, 460)
@@ -298,7 +412,9 @@ removeStroke.Transparency = 0.5
 removeStroke.Thickness = 1
 removeStroke.Parent = removeBtn
 
--- Function to create toggle buttons (sa Nexio) with timer bar
+-- ============================================================================
+--  TOGGLE BUTTON FUNCTION (with loading effect, no auto-off)
+-- ============================================================================
 local function createToggleButton(name, icon, order, color)
 	color = color or Color3.fromRGB(0, 150, 255)  -- Default blue
 	local btnHeight = isMobile and 52 or 58
@@ -406,22 +522,22 @@ local function createToggleButton(name, icon, order, color)
 	knobCorner.CornerRadius = UDim.new(1, 0)
 	knobCorner.Parent = toggleKnob
 
-	-- Timer Bar (Hidden by default)
-	local timerBar = Instance.new("Frame")
-	timerBar.Name = "TimerBar"
-	timerBar.Size = UDim2.new(0, 0, 0, 4)
-	timerBar.Position = UDim2.new(0, 0, 1, -4)
-	timerBar.AnchorPoint = Vector2.new(0, 1)
-	timerBar.BackgroundColor3 = color  -- Blue
-	timerBar.BackgroundTransparency = 0.3
-	timerBar.BorderSizePixel = 0
-	timerBar.ZIndex = 5
-	timerBar.Visible = false
-	timerBar.Parent = container
+	-- Loading Bar (replaces the old timer bar, now used for activation effect)
+	local loadingBar = Instance.new("Frame")
+	loadingBar.Name = "LoadingBar"
+	loadingBar.Size = UDim2.new(0, 0, 0, 4)
+	loadingBar.Position = UDim2.new(0, 0, 1, -4)
+	loadingBar.AnchorPoint = Vector2.new(0, 1)
+	loadingBar.BackgroundColor3 = color  -- Blue
+	loadingBar.BackgroundTransparency = 0.3
+	loadingBar.BorderSizePixel = 0
+	loadingBar.ZIndex = 5
+	loadingBar.Visible = false
+	loadingBar.Parent = container
 
 	local barCorner = Instance.new("UICorner")
 	barCorner.CornerRadius = UDim.new(0, 2)
-	barCorner.Parent = timerBar
+	barCorner.Parent = loadingBar
 
 	local clickBtn = Instance.new("TextButton")
 	clickBtn.Size = UDim2.new(1, 0, 1, 0)
@@ -430,33 +546,28 @@ local function createToggleButton(name, icon, order, color)
 	clickBtn.ZIndex = 4
 	clickBtn.Parent = container
 
+	-- State variables
 	local isOn = false
+	local isLoading = false
 	local currentTween = nil
 
-	local function stopTimer()
+	local function stopLoading()
 		if currentTween then
 			currentTween:Cancel()
 			currentTween = nil
 		end
-		timerBar.Visible = false
-		timerBar.Size = UDim2.new(0, 0, 0, 4)
+		loadingBar.Visible = false
+		loadingBar.Size = UDim2.new(0, 0, 0, 4)
 	end
 
-	local function animateToggle(state)
-		if state == isOn then return end
-		isOn = state
-
-		-- Stop any ongoing timer tween
-		stopTimer()
-
+	local function setVisualState(state, loading)
+		-- Update colors and knob position based on state
 		local knobPos = state and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
 		local trackColor = state and color or Color3.fromRGB(40, 45, 60)
 		local knobColor = state and color or color:lerp(Color3.new(1,1,1), 0.3)
 		local strokeColor = state and color or color
 		local containerStrokeColor = state and color or color
 		local containerStrokeTransp = state and 0.2 or 0.6
-		local statusText = state and "Active" or "Inactive"
-		local statusColor = state and color or Color3.fromRGB(120, 140, 180)
 		local iconBg = state and color or color:lerp(Color3.new(0,0,0), 0.5)
 
 		TweenService:Create(toggleKnob, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = knobPos, BackgroundColor3 = knobColor}):Play()
@@ -465,8 +576,13 @@ local function createToggleButton(name, icon, order, color)
 		TweenService:Create(containerStroke, TweenInfo.new(0.2), {Color = containerStrokeColor, Transparency = containerStrokeTransp}):Play()
 		TweenService:Create(iconLabel, TweenInfo.new(0.2), {BackgroundColor3 = iconBg}):Play()
 
-		statusLabel.Text = statusText
-		TweenService:Create(statusLabel, TweenInfo.new(0.2), {TextColor3 = statusColor}):Play()
+		if loading then
+			statusLabel.Text = "Activating..."
+			statusLabel.TextColor3 = color
+		else
+			statusLabel.Text = state and "Active" or "Inactive"
+			statusLabel.TextColor3 = state and color or Color3.fromRGB(120, 140, 180)
+		end
 
 		-- Button press effect
 		local punchTween = TweenService:Create(container, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
@@ -475,8 +591,8 @@ local function createToggleButton(name, icon, order, color)
 			TweenService:Create(container, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2}):Play()
 		end)
 
-		-- Ripple effect
-		if state then
+		-- Ripple effect on activation
+		if state and not loading then
 			local ripple = Instance.new("Frame")
 			ripple.Size = UDim2.new(0, 0, 0, 0)
 			ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -496,29 +612,50 @@ local function createToggleButton(name, icon, order, color)
 			}):Play()
 			task.delay(0.5, function() ripple:Destroy() end)
 		end
-
-		-- Timer Bar Logic
-		if state then
-			timerBar.Visible = true
-			timerBar.Size = UDim2.new(0, 0, 0, 4)
-			-- Tween to full width over 5 seconds
-			currentTween = TweenService:Create(timerBar, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 0, 4)})
-			currentTween:Play()
-			currentTween.Completed:Connect(function()
-				-- Turn off automatically after timer finishes
-				if isOn then
-					animateToggle(false)
-				end
-				stopTimer()
-			end)
-		else
-			stopTimer()
-		end
-
-		print("[Shin Scripts] " .. name .. " -> " .. (state and "ON" or "OFF"))
 	end
 
-	clickBtn.MouseButton1Click:Connect(function() animateToggle(not isOn) end)
+	local function turnOn()
+		isOn = true
+		isLoading = true
+		setVisualState(true, true)
+
+		-- Start loading bar tween (5 seconds)
+		loadingBar.Visible = true
+		loadingBar.Size = UDim2.new(0, 0, 0, 4)
+		currentTween = TweenService:Create(loadingBar, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 0, 4)})
+		currentTween:Play()
+		currentTween.Completed:Connect(function()
+			-- Loading finished, now fully on (no auto-off)
+			if isLoading then
+				isLoading = false
+				setVisualState(true, false)
+				stopLoading()
+			end
+		end)
+	end
+
+	local function turnOff()
+		if isLoading then
+			stopLoading()
+		end
+		isOn = false
+		isLoading = false
+		setVisualState(false, false)
+		stopLoading()
+	end
+
+	-- Click handler
+	clickBtn.MouseButton1Click:Connect(function()
+		if isOn then
+			-- If currently on (or loading), turn off
+			turnOff()
+		else
+			-- If off, turn on
+			turnOn()
+		end
+	end)
+
+	-- Hover effects
 	clickBtn.MouseEnter:Connect(function() 
 		TweenService:Create(container, TweenInfo.new(0.15), {BackgroundTransparency = 0}):Play()
 	end)
@@ -526,7 +663,7 @@ local function createToggleButton(name, icon, order, color)
 		TweenService:Create(container, TweenInfo.new(0.15), {BackgroundTransparency = 0.2}):Play()
 	end)
 	
-	return container, animateToggle
+	return container, {turnOn = turnOn, turnOff = turnOff}
 end
 
 -- Create toggle buttons
