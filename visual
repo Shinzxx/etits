@@ -2,7 +2,6 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
@@ -23,257 +22,153 @@ if not parentSuccess then
 end
 
 -- ============================================================================
---  STARTUP LOADING SCREEN (inspired by the photo, 5 seconds)
+--  WELCOME SCREEN (with Continue button)
 -- ============================================================================
-local loadingFrame = Instance.new("Frame")
-loadingFrame.Name = "LoadingScreen"
-loadingFrame.Size = UDim2.new(1, 0, 1, 0)
-loadingFrame.Position = UDim2.new(0, 0, 0, 0)
-loadingFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 10)  -- Very dark blue-black
-loadingFrame.BackgroundTransparency = 0
-loadingFrame.BorderSizePixel = 0
-loadingFrame.ZIndex = 10
-loadingFrame.Parent = screenGui
+local welcomeFrame = Instance.new("Frame")
+welcomeFrame.Name = "WelcomeScreen"
+welcomeFrame.Size = UDim2.new(1, 0, 1, 0)
+welcomeFrame.Position = UDim2.new(0, 0, 0, 0)
+welcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+welcomeFrame.BackgroundTransparency = 0.2
+welcomeFrame.BorderSizePixel = 0
+welcomeFrame.ZIndex = 20
+welcomeFrame.Parent = screenGui
 
--- Gradient overlay for depth
-local loadingGradient = Instance.new("UIGradient")
-loadingGradient.Color = ColorSequence.new({
+-- Dark gradient overlay
+local welcomeGradient = Instance.new("UIGradient")
+welcomeGradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 5)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(8, 8, 20)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 5, 15))
+})
+welcomeGradient.Rotation = 45
+welcomeGradient.Parent = welcomeFrame
+
+-- Main welcome panel
+local welcomePanel = Instance.new("Frame")
+welcomePanel.Name = "WelcomePanel"
+welcomePanel.Size = UDim2.new(0, 400, 0, 300)
+welcomePanel.Position = UDim2.new(0.5, -200, 0.5, -150)
+welcomePanel.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
+welcomePanel.BackgroundTransparency = 0.1
+welcomePanel.BorderSizePixel = 0
+welcomePanel.ZIndex = 21
+welcomePanel.Parent = welcomeFrame
+
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 18)
+panelCorner.Parent = welcomePanel
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = Color3.fromRGB(0, 150, 255)
+panelStroke.Thickness = 2
+panelStroke.Transparency = 0.3
+panelStroke.Parent = welcomePanel
+
+local panelGradient = Instance.new("UIGradient")
+panelGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(8, 8, 15)),
 	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 5))
 })
-loadingGradient.Rotation = 45
-loadingGradient.Parent = loadingFrame
+panelGradient.Rotation = 135
+panelGradient.Parent = welcomePanel
 
--- Header (from screenshot)
-local loadingHeader = Instance.new("TextLabel")
-loadingHeader.Size = UDim2.new(1, -40, 0, 40)
-loadingHeader.Position = UDim2.new(0, 20, 0, 20)
-loadingHeader.BackgroundTransparency = 1
-loadingHeader.Text = "NEW STEAL A BRAINROT | TRADE FREEZE SCRIPT | FORCE READY | FORCE ACCEPT TRADE..."
-loadingHeader.TextColor3 = Color3.fromRGB(0, 180, 255)
-loadingHeader.TextScaled = true
-loadingHeader.Font = Enum.Font.GothamBold
-loadingHeader.TextWrapped = true
-loadingHeader.ZIndex = 11
-loadingHeader.Parent = loadingFrame
+-- Welcome header
+local welcomeHeader = Instance.new("TextLabel")
+welcomeHeader.Size = UDim2.new(1, 0, 0, 60)
+welcomeHeader.Position = UDim2.new(0, 0, 0, 30)
+welcomeHeader.BackgroundTransparency = 1
+welcomeHeader.Text = "Welcome!"
+welcomeHeader.TextColor3 = Color3.fromRGB(0, 200, 255)
+welcomeHeader.TextScaled = true
+welcomeHeader.Font = Enum.Font.GothamBold
+welcomeHeader.ZIndex = 22
+welcomeHeader.Parent = welcomePanel
 
--- Create item panels (mimicking the screenshot)
-local function createItemPanel(name, rarity, pricePerSec, totalValue, yPos)
-	local panel = Instance.new("Frame")
-	panel.Size = UDim2.new(1, -40, 0, 50)
-	panel.Position = UDim2.new(0, 20, 0, yPos)
-	panel.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
-	panel.BackgroundTransparency = 0.3
-	panel.BorderSizePixel = 0
-	panel.ZIndex = 11
-	panel.Parent = loadingFrame
+-- Message
+local welcomeMessage = Instance.new("TextLabel")
+welcomeMessage.Size = UDim2.new(1, -40, 0, 60)
+welcomeMessage.Position = UDim2.new(0, 20, 0, 100)
+welcomeMessage.BackgroundTransparency = 1
+welcomeMessage.Text = "You're using Shin Scripts in Steal a Brainrot"
+welcomeMessage.TextColor3 = Color3.fromRGB(180, 200, 255)
+welcomeMessage.TextScaled = true
+welcomeMessage.Font = Enum.Font.Gotham
+welcomeMessage.TextWrapped = true
+welcomeMessage.ZIndex = 22
+welcomeMessage.Parent = welcomePanel
 
-	local panelCorner = Instance.new("UICorner")
-	panelCorner.CornerRadius = UDim.new(0, 8)
-	panelCorner.Parent = panel
+-- Continue button
+local continueBtn = Instance.new("TextButton")
+continueBtn.Name = "ContinueBtn"
+continueBtn.Size = UDim2.new(0, 200, 0, 50)
+continueBtn.Position = UDim2.new(0.5, -100, 0, 200)
+continueBtn.BackgroundColor3 = Color3.fromRGB(0, 80, 150)
+continueBtn.Text = "CONTINUE"
+continueBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+continueBtn.TextScaled = true
+continueBtn.Font = Enum.Font.GothamBold
+continueBtn.BorderSizePixel = 0
+continueBtn.ZIndex = 22
+continueBtn.Parent = welcomePanel
 
-	local panelStroke = Instance.new("UIStroke")
-	panelStroke.Color = Color3.fromRGB(0, 150, 255)
-	panelStroke.Transparency = 0.5
-	panelStroke.Thickness = 1
-	panelStroke.Parent = panel
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 12)
+btnCorner.Parent = continueBtn
 
-	local nameLabel = Instance.new("TextLabel")
-	nameLabel.Size = UDim2.new(0.4, -10, 1, 0)
-	nameLabel.Position = UDim2.new(0, 10, 0, 0)
-	nameLabel.BackgroundTransparency = 1
-	nameLabel.Text = name
-	nameLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
-	nameLabel.TextScaled = true
-	nameLabel.Font = Enum.Font.GothamBold
-	nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-	nameLabel.ZIndex = 12
-	nameLabel.Parent = panel
+local btnStroke = Instance.new("UIStroke")
+btnStroke.Color = Color3.fromRGB(0, 200, 255)
+btnStroke.Thickness = 2
+btnStroke.Transparency = 0.3
+btnStroke.Parent = continueBtn
 
-	if rarity then
-		local rarityLabel = Instance.new("TextLabel")
-		rarityLabel.Size = UDim2.new(0.2, -5, 1, 0)
-		rarityLabel.Position = UDim2.new(0.4, 0, 0, 0)
-		rarityLabel.BackgroundTransparency = 1
-		rarityLabel.Text = rarity
-		rarityLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
-		rarityLabel.TextScaled = true
-		rarityLabel.Font = Enum.Font.Gotham
-		rarityLabel.TextXAlignment = Enum.TextXAlignment.Left
-		rarityLabel.ZIndex = 12
-		rarityLabel.Parent = panel
-	end
-
-	local priceLabel = Instance.new("TextLabel")
-	priceLabel.Size = UDim2.new(0.2, -5, 1, 0)
-	priceLabel.Position = UDim2.new(0.6, 0, 0, 0)
-	priceLabel.BackgroundTransparency = 1
-	priceLabel.Text = pricePerSec
-	priceLabel.TextColor3 = Color3.fromRGB(0, 255, 200)
-	priceLabel.TextScaled = true
-	priceLabel.Font = Enum.Font.Gotham
-	priceLabel.TextXAlignment = Enum.TextXAlignment.Left
-	priceLabel.ZIndex = 12
-	priceLabel.Parent = panel
-
-	local totalLabel = Instance.new("TextLabel")
-	totalLabel.Size = UDim2.new(0.2, -10, 1, 0)
-	totalLabel.Position = UDim2.new(0.8, 0, 0, 0)
-	totalLabel.BackgroundTransparency = 1
-	totalLabel.Text = totalValue
-	totalLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
-	totalLabel.TextScaled = true
-	totalLabel.Font = Enum.Font.GothamBold
-	totalLabel.TextXAlignment = Enum.TextXAlignment.Right
-	totalLabel.ZIndex = 12
-	totalLabel.Parent = panel
-end
-
-createItemPanel("Brr, Brr, Patapim", nil, "$100/s", "$15K", 70)
-createItemPanel("Trippi Troppi", "Rare", "$15/s", "$2K", 130)
-createItemPanel("Gangster Footera", "Rare", "$30/s", "$4K", 190)
-
--- Stats row (Offline Cash, Collect, etc.)
-local statsFrame = Instance.new("Frame")
-statsFrame.Size = UDim2.new(1, -40, 0, 40)
-statsFrame.Position = UDim2.new(0, 20, 0, 260)
-statsFrame.BackgroundTransparency = 1
-statsFrame.ZIndex = 11
-statsFrame.Parent = loadingFrame
-
-local statLayout = Instance.new("UIListLayout")
-statLayout.FillDirection = Enum.FillDirection.Horizontal
-statLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-statLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-statLayout.Padding = UDim.new(0, 30)
-statLayout.Parent = statsFrame
-
-local function createStat(text, value)
-	local container = Instance.new("Frame")
-	container.Size = UDim2.new(0, 120, 1, 0)
-	container.BackgroundTransparency = 1
-	container.Parent = statsFrame
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Size = UDim2.new(1, 0, 0.5, 0)
-	textLabel.Position = UDim2.new(0, 0, 0, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.Text = text
-	textLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
-	textLabel.TextScaled = true
-	textLabel.Font = Enum.Font.Gotham
-	textLabel.ZIndex = 12
-	textLabel.Parent = container
-
-	local valueLabel = Instance.new("TextLabel")
-	valueLabel.Size = UDim2.new(1, 0, 0.5, 0)
-	valueLabel.Position = UDim2.new(0, 0, 0.5, 0)
-	valueLabel.BackgroundTransparency = 1
-	valueLabel.Text = value
-	valueLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
-	valueLabel.TextScaled = true
-	valueLabel.Font = Enum.Font.GothamBold
-	valueLabel.ZIndex = 12
-	valueLabel.Parent = container
-end
-
-createStat("Offline Cash:", "$920")
-createStat("Collect:", "$1.8K")
-createStat("Loading Rin Hub", "")
-
--- Progress Bar Background
-local loadingBarBg = Instance.new("Frame")
-loadingBarBg.Size = UDim2.new(0.6, 0, 0, 8)
-loadingBarBg.Position = UDim2.new(0.5, -150, 0.9, -4)
-loadingBarBg.AnchorPoint = Vector2.new(0.5, 0.5)
-loadingBarBg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-loadingBarBg.BorderSizePixel = 0
-loadingBarBg.ZIndex = 11
-loadingBarBg.Parent = loadingFrame
-
-local barBgCorner = Instance.new("UICorner")
-barBgCorner.CornerRadius = UDim.new(0, 4)
-barBgCorner.Parent = loadingBarBg
-
--- Progress Bar Fill
-local loadingBarFill = Instance.new("Frame")
-loadingBarFill.Size = UDim2.new(0, 0, 1, 0)
-loadingBarFill.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-loadingBarFill.BorderSizePixel = 0
-loadingBarFill.ZIndex = 12
-loadingBarFill.Parent = loadingBarBg
-
-local fillCorner = Instance.new("UICorner")
-fillCorner.CornerRadius = UDim.new(0, 4)
-fillCorner.Parent = loadingBarFill
-
-local fillGradient = Instance.new("UIGradient")
-fillGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 200, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 255))
+local btnGradient = Instance.new("UIGradient")
+btnGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 200)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 255))
 })
-fillGradient.Rotation = 90
-fillGradient.Parent = loadingBarFill
+btnGradient.Rotation = 90
+btnGradient.Parent = continueBtn
 
--- Animate loading bar
-local loadTween = TweenService:Create(loadingBarFill, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
-loadTween:Play()
+-- Animation: pulse the button
+local pulseTween = TweenService:Create(btnStroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1), {Transparency = 0})
+pulseTween:Play()
 
--- After 5 seconds, fade out loading screen and show welcome
-task.wait(5)
-local fadeOut = TweenService:Create(loadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
-fadeOut:Play()
-fadeOut.Completed:Connect(function()
-	loadingFrame:Destroy()
-
-	-- Welcome UI
-	local welcomeLabel = Instance.new("TextLabel")
-	welcomeLabel.Size = UDim2.new(0, 300, 0, 50)
-	welcomeLabel.Position = UDim2.new(0.5, -150, 0.9, -25)
-	welcomeLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	welcomeLabel.BackgroundTransparency = 0.3
-	welcomeLabel.Text = "Welcome to Shin Scripts, " .. LocalPlayer.Name .. "!"
-	welcomeLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
-	welcomeLabel.TextScaled = true
-	welcomeLabel.Font = Enum.Font.GothamBold
-	welcomeLabel.ZIndex = 20
-	welcomeLabel.Parent = screenGui
-
-	local welcomeCorner = Instance.new("UICorner")
-	welcomeCorner.CornerRadius = UDim.new(0, 12)
-	welcomeCorner.Parent = welcomeLabel
-
-	local welcomeStroke = Instance.new("UIStroke")
-	welcomeStroke.Color = Color3.fromRGB(0, 150, 255)
-	welcomeStroke.Thickness = 1.5
-	welcomeStroke.Parent = welcomeLabel
-
-	-- Fade out after 2 seconds
-	task.wait(2)
-	local welcomeFade = TweenService:Create(welcomeLabel, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1})
-	welcomeFade:Play()
-	welcomeFade.Completed:Connect(function() welcomeLabel:Destroy() end)
+-- Click to proceed
+continueBtn.MouseButton1Click:Connect(function()
+	-- Fade out welcome screen
+	local fadeOut = TweenService:Create(welcomeFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 1})
+	fadeOut:Play()
+	fadeOut.Completed:Connect(function()
+		welcomeFrame:Destroy()
+		-- Show main UI with animation
+		mainFrame.Visible = true
+		TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = fullSize}):Play()
+	end)
+	-- Also fade out panel and its contents by making them transparent
+	TweenService:Create(welcomePanel, TweenInfo.new(0.5), {BackgroundTransparency = 1, Transparency = 1}):Play()
+	TweenService:Create(welcomeHeader, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+	TweenService:Create(welcomeMessage, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+	TweenService:Create(continueBtn, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
 end)
 
 -- ============================================================================
---  MAIN UI (unchanged layout, only colors adjusted per your request)
+--  MAIN UI (RIN HUB style with three toggles)
 -- ============================================================================
 
--- Sizing (adjusted for more content)
-local baseSize = isMobile and UDim2.new(0, 320, 0, 420) or UDim2.new(0, 380, 0, 460)
-local basePos = UDim2.new(0.5, isMobile and -160 or -190, 0.5, isMobile and -210 or -230)
+-- Sizing
+local fullSize = isMobile and UDim2.new(0, 340, 0, 480) or UDim2.new(0, 400, 0, 500)
+local basePos = UDim2.new(0.5, isMobile and -170 or -200, 0.5, isMobile and -240 or -250)
 
--- Main Frame
+-- Main Frame (initially hidden, will be shown after welcome)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 0, 0, 0)
+mainFrame.Size = UDim2.new(0, 0, 0, 0)  -- Start small for animation
 mainFrame.Position = basePos
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Pure black
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BackgroundTransparency = 0.1
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
+mainFrame.Visible = false
 mainFrame.Parent = screenGui
 
 -- Corner
@@ -281,28 +176,28 @@ local mainCorner = Instance.new("UICorner")
 mainCorner.CornerRadius = UDim.new(0, 18)
 mainCorner.Parent = mainFrame
 
--- Stroke with glow effect (BLUE)
+-- Stroke (blue)
 local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(0, 150, 255)  -- Vibrant blue
+mainStroke.Color = Color3.fromRGB(0, 150, 255)
 mainStroke.Transparency = 0.3
 mainStroke.Thickness = 1.5
 mainStroke.Parent = mainFrame
 
--- Gradient Background (Black to Very Dark Gray)
+-- Gradient Background
 local bgGradient = Instance.new("UIGradient")
 bgGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),      -- Black
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(8, 8, 8)),    -- Very dark gray
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))    -- Slightly lighter black
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(8, 8, 8)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
 })
 bgGradient.Rotation = 135
 bgGradient.Parent = mainFrame
 
--- Top glow bar (BLUE)
+-- Top glow bar
 local glowFrame = Instance.new("Frame")
 glowFrame.Size = UDim2.new(1, 0, 0, 3)
 glowFrame.Position = UDim2.new(0, 0, 0, 0)
-glowFrame.BackgroundColor3 = Color3.fromRGB(0, 150, 255)  -- Blue
+glowFrame.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
 glowFrame.BorderSizePixel = 0
 glowFrame.ZIndex = 5
 glowFrame.Parent = mainFrame
@@ -318,17 +213,17 @@ glowGrad.Parent = glowFrame
 -- Title Bar
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, 55)
+topBar.Size = UDim2.new(1, 0, 0, 70)
 topBar.Position = UDim2.new(0, 0, 0, 3)
 topBar.BackgroundTransparency = 1
 topBar.ZIndex = 3
 topBar.Parent = mainFrame
 
--- Logo Container (Blue)
+-- Logo
 local logoContainer = Instance.new("Frame")
-logoContainer.Size = UDim2.new(0, 36, 0, 36)
-logoContainer.Position = UDim2.new(0, 14, 0.5, -18)
-logoContainer.BackgroundColor3 = Color3.fromRGB(0, 120, 200)  -- Blue
+logoContainer.Size = UDim2.new(0, 40, 0, 40)
+logoContainer.Position = UDim2.new(0, 14, 0.5, -20)
+logoContainer.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
 logoContainer.BorderSizePixel = 0
 logoContainer.ZIndex = 4
 logoContainer.Parent = topBar
@@ -357,34 +252,27 @@ logoLabel.Parent = logoContainer
 
 -- Title
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(0, 160, 0, 22)
-titleLabel.Position = UDim2.new(0, 58, 0, 8)
+titleLabel.Size = UDim2.new(0, 200, 0, 26)
+titleLabel.Position = UDim2.new(0, 62, 0, 12)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "SHIN SCRIPTS"
 titleLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
 titleLabel.TextScaled = false
-titleLabel.TextSize = isMobile and 14 or 15
+titleLabel.TextSize = isMobile and 16 or 18
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.ZIndex = 4
 titleLabel.Parent = topBar
 
-local titleGrad = Instance.new("UIGradient")
-titleGrad.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 255))
-})
-titleGrad.Parent = titleLabel
-
 -- Subtitle
 local subtitleLabel = Instance.new("TextLabel")
-subtitleLabel.Size = UDim2.new(0, 200, 0, 16)
-subtitleLabel.Position = UDim2.new(0, 58, 0, 30)
+subtitleLabel.Size = UDim2.new(0, 200, 0, 18)
+subtitleLabel.Position = UDim2.new(0, 62, 0, 38)
 subtitleLabel.BackgroundTransparency = 1
-subtitleLabel.Text = "Freeze Trade Controller"
+subtitleLabel.Text = "Steal A Brainrot Scripts"
 subtitleLabel.TextColor3 = Color3.fromRGB(100, 150, 200)
 subtitleLabel.TextScaled = false
-subtitleLabel.TextSize = isMobile and 10 or 11
+subtitleLabel.TextSize = isMobile and 12 or 14
 subtitleLabel.Font = Enum.Font.Gotham
 subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 subtitleLabel.ZIndex = 4
@@ -410,31 +298,22 @@ minCorner.Parent = minimizeBtn
 -- Divider
 local divider = Instance.new("Frame")
 divider.Size = UDim2.new(1, -28, 0, 1)
-divider.Position = UDim2.new(0, 14, 0, 58)
-divider.BackgroundColor3 = Color3.fromRGB(0, 150, 255)  -- Blue
+divider.Position = UDim2.new(0, 14, 0, 73)
+divider.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
 divider.BackgroundTransparency = 0.5
 divider.BorderSizePixel = 0
 divider.Parent = mainFrame
 
-local divGrad = Instance.new("UIGradient")
-divGrad.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(0,0,0)),
-	ColorSequenceKeypoint.new(0.3, Color3.fromRGB(0,150,255)),
-	ColorSequenceKeypoint.new(0.7, Color3.fromRGB(0,150,255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0,0,0))
-})
-divGrad.Parent = divider
-
 -- Content Frame
 local contentFrame = Instance.new("Frame")
 contentFrame.Name = "Content"
-contentFrame.Size = UDim2.new(1, 0, 1, -60)
-contentFrame.Position = UDim2.new(0, 0, 0, 60)
+contentFrame.Size = UDim2.new(1, 0, 1, -80)
+contentFrame.Position = UDim2.new(0, 0, 0, 80)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = mainFrame
 
 local contentLayout = Instance.new("UIListLayout")
-contentLayout.Padding = UDim.new(0, 10)
+contentLayout.Padding = UDim.new(0, 12)
 contentLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 contentLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -446,201 +325,124 @@ contentPadding.PaddingLeft = UDim.new(0, 14)
 contentPadding.PaddingRight = UDim.new(0, 14)
 contentPadding.Parent = contentFrame
 
--- INPUT FIELD (custom container)
-local inputContainer = Instance.new("Frame")
-inputContainer.Name = "InputContainer"
-inputContainer.Size = UDim2.new(1, 0, 0, isMobile and 50 or 55)
-inputContainer.BackgroundColor3 = Color3.fromRGB(5, 5, 5)  -- Near black
-inputContainer.BackgroundTransparency = 0.2
-inputContainer.BorderSizePixel = 0
-inputContainer.LayoutOrder = 1
-inputContainer.Parent = contentFrame
-
-local inputCorner = Instance.new("UICorner")
-inputCorner.CornerRadius = UDim.new(0, 12)
-inputCorner.Parent = inputContainer
-
-local inputStroke = Instance.new("UIStroke")
-inputStroke.Color = Color3.fromRGB(0, 150, 255)  -- Blue
-inputStroke.Transparency = 0.6
-inputStroke.Thickness = 1
-inputStroke.Parent = inputContainer
-
--- Input TextBox
-local textBox = Instance.new("TextBox")
-textBox.Name = "BrainrotInput"
-textBox.Size = UDim2.new(1, -24, 1, -12)
-textBox.Position = UDim2.new(0, 12, 0, 6)
-textBox.BackgroundTransparency = 1
-textBox.PlaceholderText = "Input Brainrots"
-textBox.PlaceholderColor3 = Color3.fromRGB(100, 120, 150)
-textBox.Text = ""
-textBox.TextColor3 = Color3.fromRGB(200, 220, 255)
-textBox.TextScaled = false
-textBox.TextSize = isMobile and 14 or 16
-textBox.Font = Enum.Font.Gotham
-textBox.ClearTextOnFocus = false
-textBox.ZIndex = 2
-textBox.Parent = inputContainer
-
--- BUTTON ROW
-local buttonRow = Instance.new("Frame")
-buttonRow.Name = "ButtonRow"
-buttonRow.Size = UDim2.new(1, 0, 0, isMobile and 45 or 50)
-buttonRow.BackgroundTransparency = 1
-buttonRow.LayoutOrder = 2
-buttonRow.Parent = contentFrame
-
--- ADD Button
-local addBtn = Instance.new("TextButton")
-addBtn.Name = "AddBtn"
-addBtn.Size = UDim2.new(0.48, -5, 1, 0)
-addBtn.Position = UDim2.new(0, 0, 0, 0)
-addBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 100) -- Green (unchanged)
-addBtn.Text = "ADD"
-addBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-addBtn.TextScaled = false
-addBtn.TextSize = isMobile and 14 or 16
-addBtn.Font = Enum.Font.GothamBold
-addBtn.BorderSizePixel = 0
-addBtn.Parent = buttonRow
-
-local addCorner = Instance.new("UICorner")
-addCorner.CornerRadius = UDim.new(0, 10)
-addCorner.Parent = addBtn
-
-local addStroke = Instance.new("UIStroke")
-addStroke.Color = Color3.fromRGB(0, 255, 150)
-addStroke.Transparency = 0.5
-addStroke.Thickness = 1
-addStroke.Parent = addBtn
-
--- REMOVE Button
-local removeBtn = Instance.new("TextButton")
-removeBtn.Name = "RemoveBtn"
-removeBtn.Size = UDim2.new(0.48, -5, 1, 0)
-removeBtn.Position = UDim2.new(0.52, 5, 0, 0)
-removeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 70) -- Red (unchanged)
-removeBtn.Text = "REMOVE"
-removeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-removeBtn.TextScaled = false
-removeBtn.TextSize = isMobile and 14 or 16
-removeBtn.Font = Enum.Font.GothamBold
-removeBtn.BorderSizePixel = 0
-removeBtn.Parent = buttonRow
-
-local removeCorner = Instance.new("UICorner")
-removeCorner.CornerRadius = UDim.new(0, 10)
-removeCorner.Parent = removeBtn
-
-local removeStroke = Instance.new("UIStroke")
-removeStroke.Color = Color3.fromRGB(255, 100, 120)
-removeStroke.Transparency = 0.5
-removeStroke.Thickness = 1
-removeStroke.Parent = removeBtn
-
 -- ============================================================================
---  TOGGLE BUTTON FUNCTION (with loading popup, no auto-off)
+--  TOGGLE CARD FUNCTION (with description and loading bar)
 -- ============================================================================
-local function createToggleButton(name, icon, order, color)
-	color = color or Color3.fromRGB(0, 150, 255)  -- Default blue
-	local btnHeight = isMobile and 52 or 58
+local function createToggleCard(name, description, icon, order, color)
+	color = color or Color3.fromRGB(0, 150, 255)
+	local cardHeight = isMobile and 100 or 110
 
-	local container = Instance.new("Frame")
-	container.Name = name .. "Container"
-	container.Size = UDim2.new(1, 0, 0, btnHeight)
-	container.BackgroundColor3 = Color3.fromRGB(5, 5, 5)  -- Near black
-	container.BackgroundTransparency = 0.2
-	container.BorderSizePixel = 0
-	container.LayoutOrder = order
-	container.Parent = contentFrame
-	container.ClipsDescendants = true
+	local card = Instance.new("Frame")
+	card.Name = name .. "Card"
+	card.Size = UDim2.new(1, 0, 0, cardHeight)
+	card.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+	card.BackgroundTransparency = 0.2
+	card.BorderSizePixel = 0
+	card.LayoutOrder = order
+	card.Parent = contentFrame
+	card.ClipsDescendants = true
 
-	local containerCorner = Instance.new("UICorner")
-	containerCorner.CornerRadius = UDim.new(0, 12)
-	containerCorner.Parent = container
+	local cardCorner = Instance.new("UICorner")
+	cardCorner.CornerRadius = UDim.new(0, 12)
+	cardCorner.Parent = card
 
-	local containerStroke = Instance.new("UIStroke")
-	containerStroke.Color = color  -- Blue
-	containerStroke.Transparency = 0.6
-	containerStroke.Thickness = 1
-	containerStroke.Parent = container
+	local cardStroke = Instance.new("UIStroke")
+	cardStroke.Color = color
+	cardStroke.Transparency = 0.6
+	cardStroke.Thickness = 1
+	cardStroke.Parent = card
 
-	local containerGrad = Instance.new("UIGradient")
-	containerGrad.Color = ColorSequence.new({
+	local cardGrad = Instance.new("UIGradient")
+	cardGrad.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(8, 8, 8)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 	})
-	containerGrad.Rotation = 135
-	containerGrad.Parent = container
+	cardGrad.Rotation = 135
+	cardGrad.Parent = card
 
+	-- Icon (optional)
 	local iconLabel = Instance.new("TextLabel")
-	iconLabel.Size = UDim2.new(0, 32, 0, 32)
-	iconLabel.Position = UDim2.new(0, 12, 0.5, -16)
-	iconLabel.BackgroundColor3 = color  -- Blue
+	iconLabel.Size = UDim2.new(0, 36, 0, 36)
+	iconLabel.Position = UDim2.new(0, 12, 0, 12)
+	iconLabel.BackgroundColor3 = color
 	iconLabel.Text = icon
-	iconLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+	iconLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	iconLabel.TextScaled = true
 	iconLabel.Font = Enum.Font.GothamBold
 	iconLabel.BorderSizePixel = 0
 	iconLabel.ZIndex = 2
-	iconLabel.Parent = container
+	iconLabel.Parent = card
 
 	local iconCorner = Instance.new("UICorner")
 	iconCorner.CornerRadius = UDim.new(0, 8)
 	iconCorner.Parent = iconLabel
 
-	local nameLabel = Instance.new("TextLabel")
-	nameLabel.Name = "ButtonName"
-	nameLabel.Size = UDim2.new(1, -110, 0, 20)
-	nameLabel.Position = UDim2.new(0, 54, 0.5, -14)
-	nameLabel.BackgroundTransparency = 1
-	nameLabel.Text = name
-	nameLabel.TextColor3 = Color3.fromRGB(220, 230, 255)
-	nameLabel.TextScaled = false
-	nameLabel.TextSize = isMobile and 12 or 13
-	nameLabel.Font = Enum.Font.GothamBold
-	nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-	nameLabel.ZIndex = 2
-	nameLabel.Parent = container
+	-- Title
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, -60, 0, 22)
+	titleLabel.Position = UDim2.new(0, 54, 0, 12)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = name
+	titleLabel.TextColor3 = Color3.fromRGB(220, 230, 255)
+	titleLabel.TextScaled = false
+	titleLabel.TextSize = isMobile and 14 or 16
+	titleLabel.Font = Enum.Font.GothamBold
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.ZIndex = 2
+	titleLabel.Parent = card
 
+	-- Description
+	local descLabel = Instance.new("TextLabel")
+	descLabel.Size = UDim2.new(1, -60, 0, 18)
+	descLabel.Position = UDim2.new(0, 54, 0, 34)
+	descLabel.BackgroundTransparency = 1
+	descLabel.Text = description
+	descLabel.TextColor3 = Color3.fromRGB(150, 170, 200)
+	descLabel.TextScaled = false
+	descLabel.TextSize = isMobile and 10 or 12
+	descLabel.Font = Enum.Font.Gotham
+	descLabel.TextXAlignment = Enum.TextXAlignment.Left
+	descLabel.ZIndex = 2
+	descLabel.Parent = card
+
+	-- Status Label (Inactive/Active)
 	local statusLabel = Instance.new("TextLabel")
 	statusLabel.Name = "StatusLabel"
-	statusLabel.Size = UDim2.new(1, -110, 0, 14)
-	statusLabel.Position = UDim2.new(0, 54, 0.5, 2)
+	statusLabel.Size = UDim2.new(0, 80, 0, 18)
+	statusLabel.Position = UDim2.new(0, 54, 0, 54)
 	statusLabel.BackgroundTransparency = 1
 	statusLabel.Text = "Inactive"
 	statusLabel.TextColor3 = Color3.fromRGB(120, 140, 180)
 	statusLabel.TextScaled = false
-	statusLabel.TextSize = isMobile and 9 or 10
-	statusLabel.Font = Enum.Font.Gotham
+	statusLabel.TextSize = isMobile and 10 or 12
+	statusLabel.Font = Enum.Font.GothamBold
 	statusLabel.TextXAlignment = Enum.TextXAlignment.Left
 	statusLabel.ZIndex = 2
-	statusLabel.Parent = container
+	statusLabel.Parent = card
 
 	-- Toggle Switch
 	local toggleTrack = Instance.new("Frame")
-	toggleTrack.Size = UDim2.new(0, 44, 0, 24)
-	toggleTrack.Position = UDim2.new(1, -56, 0.5, -12)
+	toggleTrack.Size = UDim2.new(0, 50, 0, 26)
+	toggleTrack.Position = UDim2.new(1, -64, 0, 40)
 	toggleTrack.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
 	toggleTrack.BorderSizePixel = 0
 	toggleTrack.ZIndex = 2
-	toggleTrack.Parent = container
+	toggleTrack.Parent = card
 
 	local trackCorner = Instance.new("UICorner")
 	trackCorner.CornerRadius = UDim.new(1, 0)
 	trackCorner.Parent = toggleTrack
 
 	local trackStroke = Instance.new("UIStroke")
-	trackStroke.Color = color  -- Blue
+	trackStroke.Color = color
 	trackStroke.Transparency = 0.5
 	trackStroke.Thickness = 1
 	trackStroke.Parent = toggleTrack
 
 	local toggleKnob = Instance.new("Frame")
-	toggleKnob.Size = UDim2.new(0, 18, 0, 18)
-	toggleKnob.Position = UDim2.new(0, 3, 0.5, -9)
-	toggleKnob.BackgroundColor3 = color  -- Blue
+	toggleKnob.Size = UDim2.new(0, 20, 0, 20)
+	toggleKnob.Position = UDim2.new(0, 3, 0.5, -10)
+	toggleKnob.BackgroundColor3 = color
 	toggleKnob.BorderSizePixel = 0
 	toggleKnob.ZIndex = 3
 	toggleKnob.Parent = toggleTrack
@@ -649,84 +451,31 @@ local function createToggleButton(name, icon, order, color)
 	knobCorner.CornerRadius = UDim.new(1, 0)
 	knobCorner.Parent = toggleKnob
 
-	-- Loading Popup (similar to startup but smaller and simpler)
-	local loadingPopup = Instance.new("Frame")
-	loadingPopup.Name = "LoadingPopup"
-	loadingPopup.Size = UDim2.new(0, 280, 0, 150)
-	loadingPopup.Position = UDim2.new(0.5, -140, 0.5, -75)
-	loadingPopup.AnchorPoint = Vector2.new(0.5, 0.5)
-	loadingPopup.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
-	loadingPopup.BackgroundTransparency = 0.1
-	loadingPopup.BorderSizePixel = 0
-	loadingPopup.ZIndex = 20
-	loadingPopup.Visible = false
-	loadingPopup.Parent = screenGui  -- Parent to screenGui to appear above everything
+	-- Loading Bar (at bottom)
+	local loadingBar = Instance.new("Frame")
+	loadingBar.Name = "LoadingBar"
+	loadingBar.Size = UDim2.new(0, 0, 0, 4)
+	loadingBar.Position = UDim2.new(0, 0, 1, -4)
+	loadingBar.AnchorPoint = Vector2.new(0, 1)
+	loadingBar.BackgroundColor3 = color
+	loadingBar.BackgroundTransparency = 0.3
+	loadingBar.BorderSizePixel = 0
+	loadingBar.ZIndex = 5
+	loadingBar.Visible = false
+	loadingBar.Parent = card
 
-	local popupCorner = Instance.new("UICorner")
-	popupCorner.CornerRadius = UDim.new(0, 12)
-	popupCorner.Parent = loadingPopup
-
-	local popupStroke = Instance.new("UIStroke")
-	popupStroke.Color = color
-	popupStroke.Thickness = 2
-	popupStroke.Parent = loadingPopup
-
-	local popupHeader = Instance.new("TextLabel")
-	popupHeader.Size = UDim2.new(1, -20, 0, 30)
-	popupHeader.Position = UDim2.new(0, 10, 0, 10)
-	popupHeader.BackgroundTransparency = 1
-	popupHeader.Text = "ACTIVATING " .. name:upper() .. "..."
-	popupHeader.TextColor3 = color
-	popupHeader.TextScaled = true
-	popupHeader.Font = Enum.Font.GothamBold
-	popupHeader.ZIndex = 21
-	popupHeader.Parent = loadingPopup
-
-	-- Progress bar inside popup
-	local popupBarBg = Instance.new("Frame")
-	popupBarBg.Size = UDim2.new(0.8, 0, 0, 8)
-	popupBarBg.Position = UDim2.new(0.5, -100, 0.5, -4)
-	popupBarBg.AnchorPoint = Vector2.new(0.5, 0.5)
-	popupBarBg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-	popupBarBg.BorderSizePixel = 0
-	popupBarBg.ZIndex = 21
-	popupBarBg.Parent = loadingPopup
-
-	local popupBarBgCorner = Instance.new("UICorner")
-	popupBarBgCorner.CornerRadius = UDim.new(0, 4)
-	popupBarBgCorner.Parent = popupBarBg
-
-	local popupBarFill = Instance.new("Frame")
-	popupBarFill.Size = UDim2.new(0, 0, 1, 0)
-	popupBarFill.BackgroundColor3 = color
-	popupBarFill.BorderSizePixel = 0
-	popupBarFill.ZIndex = 22
-	popupBarFill.Parent = popupBarBg
-
-	local popupFillCorner = Instance.new("UICorner")
-	popupFillCorner.CornerRadius = UDim.new(0, 4)
-	popupFillCorner.Parent = popupBarFill
-
-	-- Flavor text
-	local popupFlavor = Instance.new("TextLabel")
-	popupFlavor.Size = UDim2.new(1, -20, 0, 20)
-	popupFlavor.Position = UDim2.new(0, 10, 0, 100)
-	popupFlavor.BackgroundTransparency = 1
-	popupFlavor.Text = "Brr Brr... Loading brainrot"
-	popupFlavor.TextColor3 = Color3.fromRGB(150, 200, 255)
-	popupFlavor.TextScaled = true
-	popupFlavor.Font = Enum.Font.Gotham
-	popupFlavor.ZIndex = 21
-	popupFlavor.Parent = loadingPopup
+	local barCorner = Instance.new("UICorner")
+	barCorner.CornerRadius = UDim.new(0, 2)
+	barCorner.Parent = loadingBar
 
 	local clickBtn = Instance.new("TextButton")
 	clickBtn.Size = UDim2.new(1, 0, 1, 0)
 	clickBtn.BackgroundTransparency = 1
 	clickBtn.Text = ""
 	clickBtn.ZIndex = 4
-	clickBtn.Parent = container
+	clickBtn.Parent = card
 
-	-- State variables
+	-- State
 	local isOn = false
 	local isLoading = false
 	local currentTween = nil
@@ -736,24 +485,23 @@ local function createToggleButton(name, icon, order, color)
 			currentTween:Cancel()
 			currentTween = nil
 		end
-		loadingPopup.Visible = false
-		popupBarFill.Size = UDim2.new(0, 0, 1, 0)
+		loadingBar.Visible = false
+		loadingBar.Size = UDim2.new(0, 0, 0, 4)
 	end
 
 	local function setVisualState(state, loading)
-		-- Update colors and knob position based on state
-		local knobPos = state and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
+		local knobPos = state and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
 		local trackColor = state and color or Color3.fromRGB(40, 45, 60)
 		local knobColor = state and color or color:lerp(Color3.new(1,1,1), 0.3)
 		local strokeColor = state and color or color
-		local containerStrokeColor = state and color or color
-		local containerStrokeTransp = state and 0.2 or 0.6
+		local cardStrokeColor = state and color or color
+		local cardStrokeTransp = state and 0.2 or 0.6
 		local iconBg = state and color or color:lerp(Color3.new(0,0,0), 0.5)
 
 		TweenService:Create(toggleKnob, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = knobPos, BackgroundColor3 = knobColor}):Play()
 		TweenService:Create(toggleTrack, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = trackColor}):Play()
 		TweenService:Create(trackStroke, TweenInfo.new(0.2), {Color = strokeColor}):Play()
-		TweenService:Create(containerStroke, TweenInfo.new(0.2), {Color = containerStrokeColor, Transparency = containerStrokeTransp}):Play()
+		TweenService:Create(cardStroke, TweenInfo.new(0.2), {Color = cardStrokeColor, Transparency = cardStrokeTransp}):Play()
 		TweenService:Create(iconLabel, TweenInfo.new(0.2), {BackgroundColor3 = iconBg}):Play()
 
 		if loading then
@@ -764,34 +512,12 @@ local function createToggleButton(name, icon, order, color)
 			statusLabel.TextColor3 = state and color or Color3.fromRGB(120, 140, 180)
 		end
 
-		-- Button press effect
-		local punchTween = TweenService:Create(container, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
+		-- Press effect
+		local punchTween = TweenService:Create(card, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
 		punchTween:Play()
 		punchTween.Completed:Connect(function()
-			TweenService:Create(container, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2}):Play()
+			TweenService:Create(card, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2}):Play()
 		end)
-
-		-- Ripple effect on activation (when fully on, not during loading)
-		if state and not loading then
-			local ripple = Instance.new("Frame")
-			ripple.Size = UDim2.new(0, 0, 0, 0)
-			ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
-			ripple.BackgroundColor3 = color
-			ripple.BackgroundTransparency = 0.5
-			ripple.BorderSizePixel = 0
-			ripple.ZIndex = 5
-			ripple.ClipsDescendants = false
-			ripple.Parent = container
-			local rippleCorner = Instance.new("UICorner")
-			rippleCorner.CornerRadius = UDim.new(1, 0)
-			rippleCorner.Parent = ripple
-			TweenService:Create(ripple, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 300, 0, 300),
-				Position = UDim2.new(0.5, -150, 0.5, -150),
-				BackgroundTransparency = 1
-			}):Play()
-			task.delay(0.5, function() ripple:Destroy() end)
-		end
 	end
 
 	local function turnOn()
@@ -800,17 +526,14 @@ local function createToggleButton(name, icon, order, color)
 		isLoading = true
 		setVisualState(true, true)
 
-		-- Show loading popup
-		loadingPopup.Visible = true
-		popupBarFill.Size = UDim2.new(0, 0, 1, 0)
-		currentTween = TweenService:Create(popupBarFill, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
+		loadingBar.Visible = true
+		loadingBar.Size = UDim2.new(0, 0, 0, 4)
+		currentTween = TweenService:Create(loadingBar, TweenInfo.new(5, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 0, 4)})
 		currentTween:Play()
 		currentTween.Completed:Connect(function()
-			-- Loading finished, now fully on
 			if isLoading then
 				isLoading = false
 				setVisualState(true, false)
-				loadingPopup.Visible = false
 				stopLoading()
 			end
 		end)
@@ -824,45 +547,41 @@ local function createToggleButton(name, icon, order, color)
 		isOn = false
 		isLoading = false
 		setVisualState(false, false)
-		loadingPopup.Visible = false
+		stopLoading()
 	end
 
-	-- Click handler
 	clickBtn.MouseButton1Click:Connect(function()
-		if isOn then
-			turnOff()
-		else
-			turnOn()
-		end
+		if isOn then turnOff() else turnOn() end
 	end)
 
-	-- Hover effects
-	clickBtn.MouseEnter:Connect(function() 
-		TweenService:Create(container, TweenInfo.new(0.15), {BackgroundTransparency = 0}):Play()
+	-- Hover
+	clickBtn.MouseEnter:Connect(function()
+		TweenService:Create(card, TweenInfo.new(0.15), {BackgroundTransparency = 0}):Play()
 	end)
-	clickBtn.MouseLeave:Connect(function() 
-		TweenService:Create(container, TweenInfo.new(0.15), {BackgroundTransparency = 0.2}):Play()
+	clickBtn.MouseLeave:Connect(function()
+		TweenService:Create(card, TweenInfo.new(0.15), {BackgroundTransparency = 0.2}):Play()
 	end)
-	
-	return container, {turnOn = turnOn, turnOff = turnOff}
+
+	return card
 end
 
--- Create toggle buttons
-createToggleButton("Freeze Trade", "❄", 3, Color3.fromRGB(0, 150, 255))
-createToggleButton("Auto Ready", "⚡", 4, Color3.fromRGB(0, 150, 255))
+-- Create the three toggle cards
+createToggleCard("Freeze Trade", "Lock and secure trade session", "❄", 1, Color3.fromRGB(0, 150, 255))
+createToggleCard("Auto Ready", "Forcing the victim to Ready", "⚡", 2, Color3.fromRGB(0, 150, 255))
+createToggleCard("Auto Accept", "Forcing the victim to Accept", "✓", 3, Color3.fromRGB(0, 150, 255))
 
 -- Footer
 local footerFrame = Instance.new("Frame")
-footerFrame.Size = UDim2.new(1, 0, 0, 50)
+footerFrame.Size = UDim2.new(1, 0, 0, 60)
 footerFrame.BackgroundTransparency = 1
-footerFrame.LayoutOrder = 5
+footerFrame.LayoutOrder = 4
 footerFrame.Parent = contentFrame
 
 local madeByLabel = Instance.new("TextLabel")
-madeByLabel.Size = UDim2.new(1, 0, 0, 16)
-madeByLabel.Position = UDim2.new(0, 0, 0, 4)
+madeByLabel.Size = UDim2.new(1, 0, 0, 20)
+madeByLabel.Position = UDim2.new(0, 0, 0, 6)
 madeByLabel.BackgroundTransparency = 1
-madeByLabel.Text = "Create by: Shin on YT"
+madeByLabel.Text = "Made by Shin on YT"
 madeByLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
 madeByLabel.TextScaled = false
 madeByLabel.TextSize = isMobile and 12 or 14
@@ -870,22 +589,33 @@ madeByLabel.Font = Enum.Font.GothamBold
 madeByLabel.TextXAlignment = Enum.TextXAlignment.Center
 madeByLabel.Parent = footerFrame
 
-local socLabel = Instance.new("TextLabel")
-socLabel.Size = UDim2.new(1, 0, 0, 14)
-socLabel.Position = UDim2.new(0, 0, 0, 22)
-socLabel.BackgroundTransparency = 1
-socLabel.Text = "🔔 Subscribe for more scripts!"
-socLabel.TextColor3 = Color3.fromRGB(120, 140, 180)
-socLabel.TextScaled = false
-socLabel.TextSize = isMobile and 10 or 11
-socLabel.Font = Enum.Font.Gotham
-socLabel.TextXAlignment = Enum.TextXAlignment.Center
-socLabel.Parent = footerFrame
+local socialLabel = Instance.new("TextLabel")
+socialLabel.Size = UDim2.new(1, 0, 0, 18)
+socialLabel.Position = UDim2.new(0, 0, 0, 28)
+socialLabel.BackgroundTransparency = 1
+socialLabel.Text = "YT: Shin Scripts • TT: shin_hub"
+socialLabel.TextColor3 = Color3.fromRGB(120, 140, 180)
+socialLabel.TextScaled = false
+socialLabel.TextSize = isMobile and 10 or 12
+socialLabel.Font = Enum.Font.Gotham
+socialLabel.TextXAlignment = Enum.TextXAlignment.Center
+socialLabel.Parent = footerFrame
+
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Size = UDim2.new(1, 0, 0, 14)
+versionLabel.Position = UDim2.new(0, 0, 0, 46)
+versionLabel.BackgroundTransparency = 1
+versionLabel.Text = "v4.0.0"
+versionLabel.TextColor3 = Color3.fromRGB(80, 100, 140)
+versionLabel.TextScaled = false
+versionLabel.TextSize = isMobile and 8 or 10
+versionLabel.Font = Enum.Font.Gotham
+versionLabel.TextXAlignment = Enum.TextXAlignment.Center
+versionLabel.Parent = footerFrame
 
 -- Minimize functionality
 local minimized = false
-local fullSize = baseSize
-local miniSize = UDim2.new(0, fullSize.X.Offset, 0, 58)
+local miniSize = UDim2.new(0, fullSize.X.Offset, 0, 70)
 
 minimizeBtn.MouseButton1Click:Connect(function()
 	minimized = not minimized
@@ -898,48 +628,31 @@ minimizeBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Dragging functionality
+-- Dragging
 local dragging = false
 local dragStart = nil
 local startPos = nil
 
-local function onDragBegan(input)
-	dragging = true
-	dragStart = input.Position
-	startPos = mainFrame.Position
-end
-
-local function onDragChanged(input)
-	if dragging then
-		local delta = input.Position - dragStart
-		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-end
-
-local function onDragEnded()
-	dragging = false
-end
-
 topBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		onDragBegan(input)
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-		onDragChanged(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
 
 UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		onDragEnded()
+		dragging = false
 	end
 end)
-
--- Initial animation
-TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = fullSize}):Play()
 
 -- Shimmer effect
 local shimmerFrame = Instance.new("Frame")
@@ -949,7 +662,6 @@ shimmerFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 shimmerFrame.BackgroundTransparency = 0.95
 shimmerFrame.BorderSizePixel = 0
 shimmerFrame.ZIndex = 6
-shimmerFrame.ClipsDescendants = false
 shimmerFrame.Parent = mainFrame
 
 local shimCorner = Instance.new("UICorner")
@@ -974,34 +686,11 @@ end
 
 task.delay(1, playShimmer)
 
--- Pulse effect for stroke
+-- Pulse stroke
 RunService.Heartbeat:Connect(function()
 	local t = tick()
 	local alpha = (math.sin(t * 2) + 1) / 2
 	mainStroke.Transparency = 0.2 + alpha * 0.3
 end)
 
--- Button functionality
-addBtn.MouseButton1Click:Connect(function()
-	local inputText = textBox.Text
-	if inputText ~= "" then
-		print("✅ Added: " .. inputText)
-		-- Visual feedback
-		addBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
-		TweenService:Create(addBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 180, 100)}):Play()
-		textBox.Text = ""
-	end
-end)
-
-removeBtn.MouseButton1Click:Connect(function()
-	local inputText = textBox.Text
-	if inputText ~= "" then
-		print("❌ Removed: " .. inputText)
-		-- Visual feedback
-		removeBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 120)
-		TweenService:Create(removeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 50, 70)}):Play()
-		textBox.Text = ""
-	end
-end)
-
-print("✅ Shin Scripts Freeze Trade UI Loaded!")
+print("✅ Shin Scripts UI Loaded – Welcome Screen Active")
